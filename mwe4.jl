@@ -71,6 +71,30 @@ function test()
 end
 
 
+function test2()
+    N = 4
+    A1 = rand(ComplexF64, N, N)
+    D1 = A1 * A1' / N
+    A2 = rand(ComplexF64, N, N)
+    D2 = A2 * A2' / N
+    H = nothing
+    Ψ = rand(ComplexF64, N)
+    Ψ ./ norm(Ψ)
+    tlist = [0.0, 1.0]
+    traj1 = Trajectory(Ψ, H; D=D1)
+    traj2 = Trajectory(Ψ, H; D=D2)
+    xi = make_automatic_xi(g_b)
+    ξ1 = xi(Ψ, traj1, tlist, 1)
+    @show ξ1
+    ξ1_expected = -D1 * Ψ
+    @test norm(ξ1 - ξ1_expected) < 1e-14
+    ξ2 = xi(Ψ, traj2, tlist, 1)
+    @show ξ2
+    ξ2_expected = -D2 * Ψ
+    @test norm(ξ2 - ξ2_expected) < 1e-14
+end
+
+
 # The following definitions are required to fix the problem:
 
 using ChainRulesCore: ChainRulesCore, NoTangent
@@ -107,3 +131,4 @@ end
 
 
 test()
+test2()
